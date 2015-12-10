@@ -25,7 +25,7 @@ function [ DS ] = mergeDS(varargin)
 % 2920 Charlottenlund, Denmark
 % urbw@aqua.dtu.dk
 %
-% Version 1, June 2015 First Release
+% Version 2, December 2015 Second Release
 
 nDS=nargin;
 % New nSample
@@ -40,24 +40,31 @@ DS.nEx=varargin{1}.nEx;
 DS.nEm=varargin{1}.nEm;
 DS.Em=varargin{1}.Em;
 DS.Ex=varargin{1}.Ex;
+DS.i(:,1)=1:DS.nSample;
 
 i=1; % i is the counter for nSample in the new dataset, m counts the old dataset (nSample)
     for n=1:nDS
         for m=1:size(varargin{n}.filelist,1)
         DS.filelist(i,1)=varargin{n}.filelist(m,1);
-        DS.name(1,i)=varargin{n}.name(1,m);
+        if isfield(varargin{n},'ref_name') % In case user wants to use function without qy variables to merge datasets
+            DS.name(1,i)=varargin{n}.name(1,m);
+            DS.qy(i,:)=varargin{n}.qy(m,:);
+            DS.qy_precision(i,:)=varargin{n}.qy_precision(m,:);
+        end
         DS.Abs(i,:)=squeeze(varargin{n}.Abs(m,1,:));
         DS.X(i,:,:)=squeeze(varargin{n}.X(m,1,:,:));
-        DS.qy(i,:)=varargin{n}.qy(m,:);
-        DS.qy_precision(i,:)=varargin{n}.qy_precision(m,:);
         if varargin{n}.IntensityUnit=='AU'
             DS.X(i,:,:)=DS.X(i,:,:)./varargin{n}.RamanArea(m,1);
             DS.IntensityUnit='RU';
         end
+        DS.RamanArea(i,1)=varargin{n}.RamanArea(m,1);
 
         if isfield(varargin{n},'ref_name')
             DS.ref_name(i,1)=varargin{n}.ref_name(1,1);
-            DS.qy_method(i,1)={cellstr(varargin{n}.qy_method(1,:))};
+            try DS.qy_method(i,1)={cellstr(varargin{n}.qy_method(1,:))};
+            catch warning('Could not transer the aqy calculation method.')
+                DS.qy_method(i,1)={'N.A.'};
+            end
         else
             DS.ref_name(i,1)={'N.A.'};
             DS.qy_method(i,1)={'N.A.'};

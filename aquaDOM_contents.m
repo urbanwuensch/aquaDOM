@@ -1,5 +1,5 @@
-% aquaDOM Toolbox for MATLAB (ver. 1)
-% July 2015
+% aquaDOM Toolbox for MATLAB (v1.0.1)
+% December 2015
 %
 % Copyright Urban Wünsch
 % Technical University of Denmark
@@ -44,6 +44,7 @@
 % qy_plot_errBar           plot results within aqy.m
 % qy                       calculation of individual qy's
 % AbsSNR                   Calculate absorbance noise
+% formatCheck              Initial check of dataset for aquaDOM compatibility
 %
 %-----------------------------------------------
 % REFERENCES

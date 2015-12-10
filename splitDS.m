@@ -26,8 +26,13 @@ function [qy]=splitDS(DS,metadata)
 % 2920 Charlottenlund, Denmark
 % urbw@aqua.dtu.dk
 %
-% Version 1, June 2015 First Release
+% Version 2, December 2015 Second Release
 
+
+%% Initial data format check
+if strcmp(formatCheck(DS),'NOT PASSED')
+    error('Your Dataset is incomplete. Cannot continue. Please include above mentioned variables')
+end
 %% Tagging of DS files with matching ID number for identification of dilution series / replicates in dataset
 DS.id=nan(DS.nSample,1);
 for i=1:DS.nSample
@@ -40,10 +45,19 @@ for i=1:DS.nSample
 end
 
 %% Reduction of variables to identified samples (deletion of samples that were not mentioned in metadata)
+% Condition is ~isnan(DS.id)
 DS.filelist=DS.filelist(~isnan(DS.id),:,:);
 DS.X=DS.X(~isnan(DS.id),:,:);
 DS.Abs=DS.Abs(~isnan(DS.id),:,:);
-DS.id=DS.id(~isnan(DS.id),:,:);
+
+if isfield(DS,'offset')
+    qy.MiscMetadata.AbsOffset=DS.offset(~isnan(DS.id),:,:);
+end
+
+if isfield(DS,'RamanArea')
+    DS.RamanArea=DS.RamanArea(~isnan(DS.id),:,:);
+end
+
 
 
 % Abs SNR calculation (if not done manually before aquaDOM)
@@ -52,7 +66,7 @@ if isfield(DS,'noise')
 else 
     qy.noise=AbsSNR(DS);
 end
-
+DS.id=DS.id(~isnan(DS.id),:,:);
 
 %% Transfer Abs and Flu data into new sample x concentration x data scheme
 Abs=NaN(size(metadata.tag,2),size(metadata.conc,2),size(DS.Abs_wave,2));
@@ -61,6 +75,7 @@ i=1;
 for n=1:size(DS.id,1)
     Abs(DS.id(n),i,:)=DS.Abs(n,:);
     X(DS.id(n),i,:,:)=DS.X(n,:,:);
+    RamanArea(DS.id(n),1)=DS.RamanArea(n,1);
     % If EEMs were normalized to integration times
     if isfield(DS,'intT')
         intT(DS.id(n),i,1)=DS.intT(n,1);
@@ -95,12 +110,10 @@ qy.nEm=DS.nEm;
 qy.Ex=DS.Ex;
 qy.Em=DS.Em;
 
+
 % Transfer of nice to have data into nested structure
 if isfield(DS,'intT')
     qy.MiscMetadata.intT=intT;
-end
-if isfield(DS,'offset')
-    qy.MiscMetadata.AbsOffset=DS.offset(~isnan(DS.id),:,:);
 end
 
 
@@ -108,9 +121,6 @@ if ischar(DS.Smooth)
     qy.MiscMetadata.smootheem=DS.Smooth;
 end
 
-if isfield(DS,'RamanArea')
-    qy.RamanArea=DS.RamanArea(~isnan(DS.id),:,:);
-end
 
 if isfield(DS,'IntensityUnit')
     qy.IntensityUnit=DS.IntensityUnit;
@@ -124,11 +134,12 @@ end
 
 
 
-% Transfer Abs and Flu data
+% Transfer Abs and Flu data and Raman Areas
 qy.Abs=Abs;
 qy.X=X;
+qy.RamanArea=RamanArea;
 
-% Last: Order the structure alphabetically for easy navigation
+% Last: Order alphabetically for easier navigation
 qy=orderfields(qy);
 
 end
