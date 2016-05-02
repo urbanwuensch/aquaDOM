@@ -154,8 +154,8 @@ if method==2
                 DS.F_a(n,m)= tempAUC_mean/tempAbs_mean;
             end
             if DS.nConc(n)>1
-                DS.AUC_sqE(n,m)=(range(tempAUC)/tempAUC_mean)^2;
-                DS.Abs_sqE(n,m)=(range(tempAbs)/tempAbs_mean)^2;
+                DS.AUC_sqE(n,m)=(range(tempAUC,2)/tempAUC_mean)^2;
+                DS.Abs_sqE(n,m)=(range(tempAbs,2)/tempAbs_mean)^2;
             end
             clearvars tempAUC tempAbs tempAUC_mean tempAbs_mean
         end

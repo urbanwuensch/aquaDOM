@@ -34,6 +34,6 @@ noise=zeros(DS.nSample,1);
 %% Absorbance noise calculation
 for n=1:size(DS.Abs,1)
     % SNR as range of the 2nd derivative of the spectrum
-    noise(n,1)=range(diff(DS.Abs(n,AbsMin:AbsMax),2));
+    noise(n,1)=range(diff(DS.Abs(n,AbsMin:AbsMax),2),2);
 end
 end
